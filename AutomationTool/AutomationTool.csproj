@@ -12,6 +12,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Output\**" />
+    <EmbeddedResource Remove="Output\**" />
+    <None Remove="Output\**" />
+    <Page Remove="Output\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Icon.ico" />
     <None Remove="Icon\Add.png" />
     <None Remove="Icon\Alert.png" />
