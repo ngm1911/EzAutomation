@@ -8,6 +8,8 @@ using FlaUI.UIA3.Converters;
 using FlaUI.UIA3.EventHandlers;
 using FlaUI.Core.EventHandlers;
 using System.Diagnostics;
+using System.Drawing;
+using FlaUI.Core.Input;
 
 namespace AutomationTool.Helper
 {
@@ -18,7 +20,18 @@ namespace AutomationTool.Helper
         public static Window? GetCachedWindow()
         {
             var process = Process.GetProcessesByName("EZConnect").FirstOrDefault(x => x.HasExited == false);
-            if (CachedMainWindow == null || process?.MainWindowTitle != CachedMainWindow?.Name)
+            try
+            {
+                if (CachedMainWindow == null || process?.MainWindowTitle != CachedMainWindow?.Name)
+                {
+                    using (var app = Application.Attach(process!))
+                    using (var automation = new UIA3Automation())
+                    {
+                        CachedMainWindow = app.GetMainWindow(automation);
+                    }
+                }
+            }
+            catch
             {
                 using (var app = Application.Attach(process!))
                 using (var automation = new UIA3Automation())
@@ -40,7 +53,7 @@ namespace AutomationTool.Helper
                     element = GetCachedWindow();
                     foreach (var item in cachedPath.Split("<tab>").Reverse())
                     {
-                        AutomationElement tempElement = null;
+                        AutomationElement? tempElement = null;
                         var items = item.Split("<t>");
                         var automationId = items[0];
                         var name = items[1];
@@ -49,20 +62,20 @@ namespace AutomationTool.Helper
 
                         if (string.IsNullOrWhiteSpace(automationId) == false)
                         {
-                            tempElement = element.FindFirstChild(cf => cf.ByAutomationId(automationId));
+                            tempElement = element?.FindFirstChild(cf => cf.ByAutomationId(automationId));
                         }
                         if (tempElement == null || tempElement.ControlType != controlType || tempElement.Name != name)
                         {
-                            var child = element.FindAllChildren(cf => cf.ByName(name).And(cf.ByControlType(controlType)));
-                            if (child.Length == 0)
+                            var child = element?.FindAllChildren(cf => cf.ByName(name).And(cf.ByControlType(controlType)));
+                            if (child?.Length == 0)
                             {
-                                child = element.FindAllChildren(cf => cf.ByName(name));
+                                child = element?.FindAllChildren(cf => cf.ByName(name));
                             }
-                            if (child.Length == 0 || child.Length > 1)
+                            if (child?.Length == 0 || child?.Length > 1)
                             {
                                 child = [element.FindChildAt(index)];
                             }
-                            tempElement = child.FirstOrDefault();
+                            tempElement = child?.FirstOrDefault();
                         }
                         if (tempElement == null)
                         {
@@ -87,10 +100,21 @@ namespace AutomationTool.Helper
                 string automationId = string.Empty;
                 try
                 {
-                    automationId = element?.AutomationId;
+                    automationId = element?.AutomationId ?? string.Empty;
                 }
                 catch { }
                 cachedPath = $"{automationId}<t>{element?.Name}<t>{element?.ControlType}<t>{index}";
+
+                if (element?.ControlType == ControlType.Pane
+                    && element.FrameworkType == FrameworkType.WinForms
+                    && automationId.Contains("canvas", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var p = System.Windows.Forms.Cursor.Position;
+                    var rect = element.BoundingRectangle;
+                    var relative = new Point(p.X - rect.Left,p.Y - rect.Top);
+
+                    cachedPath += $"<t>{relative.X},{relative.Y}";
+                }
 
                 while (element != null
                     && (element?.Parent?.ControlType == ControlType.Window && element?.Parent?.Name == "EZConnect") == false)
@@ -100,7 +124,7 @@ namespace AutomationTool.Helper
                     index = element?.Parent?.FindAllChildren().ToList().IndexOf(element);
                     try
                     {
-                        automationId = element?.AutomationId;
+                        automationId = element?.AutomationId ?? string.Empty;
                     }
                     catch { }
                     cachedPath += $"<tab>{automationId}<t>{element?.Name}<t>{element?.ControlType}<t>{index}";

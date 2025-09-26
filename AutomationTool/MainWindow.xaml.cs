@@ -86,5 +86,49 @@ namespace AutomationTool
             while (_tabs.Any())
                 _tabs.RemoveAt(0);
         }
+
+        private void btnCollapseAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.MenuItem menuItem &&
+                menuItem.Parent is System.Windows.Controls.ContextMenu ctx &&
+                ctx.PlacementTarget is System.Windows.Controls.TreeView tree)
+            {
+                CollapseAll(tree.Items, tree);
+            }
+
+            void CollapseAll(ItemCollection items, ItemsControl parent)
+            {
+                foreach (var obj in items)
+                {
+                    if (parent.ItemContainerGenerator.ContainerFromItem(obj) is TreeViewItem tvi)
+                    {
+                        tvi.IsExpanded = false;
+                        CollapseAll(tvi.Items, tvi);
+                    }
+                }
+            }
+        }
+
+        private void btnExpandAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.MenuItem menuItem &&
+                menuItem.Parent is System.Windows.Controls.ContextMenu ctx &&
+                ctx.PlacementTarget is System.Windows.Controls.TreeView tree)
+            {
+                ExpandAll(tree.Items, tree);
+            }
+
+            void ExpandAll(ItemCollection items, ItemsControl parent)
+            {
+                foreach (var obj in items)
+                {
+                    if (parent.ItemContainerGenerator.ContainerFromItem(obj) is TreeViewItem tvi)
+                    {
+                        tvi.IsExpanded = true;
+                        ExpandAll(tvi.Items, tvi);
+                    }
+                }
+            }
+        }
     }
 }

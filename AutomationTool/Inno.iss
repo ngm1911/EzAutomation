@@ -1,7 +1,7 @@
 ; ---------------- Cáº¥u hÃ¬nh chÃ­nh ----------------
 [Setup]
 AppName=AutomationTool
-AppVersion=1.0.0.3
+AppVersion=1.0.0.6
 DefaultDirName={pf}\AutomationTool
 DefaultGroupName=AutomationTool
 UninstallDisplayIcon={app}\AutomationTool.exe
@@ -14,8 +14,8 @@ RestartIfNeededByRun=yes
 
 ; ---------------- ThÃªm file vÃ o bá»™ cÃ i Ä‘áº·t ----------------
 [Files]
-Source: "C:\Users\NguonMan\source\repos\AutomationTool\AutomationTool\bin\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
-Source: "C:\Users\NguonMan\source\repos\AutomationTool\AutomationTool\bin\Release\net8.0-windows\*"; Excludes: "*.json,*.xml"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "C:\Users\NguonMan\source\repos\EzAutomation\AutomationTool\bin\Release\net8.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
+Source: "C:\Users\NguonMan\source\repos\EzAutomation\AutomationTool\bin\Release\net8.0-windows\*"; Excludes: "*.json,*.xml"; DestDir: "{app}"; Flags: recursesubdirs
 
 ; ---------------- Táº¡o shortcut ----------------
 [Icons]

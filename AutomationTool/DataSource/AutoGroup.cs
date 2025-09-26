@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using System.Windows.Automation;
 using Application = FlaUI.Core.Application;
 
 namespace AutomationTool.DataSource
@@ -184,6 +185,50 @@ namespace AutomationTool.DataSource
             try
             {
                 Steps.Remove(step);
+            }
+            catch (Exception ex)
+            {
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+            }
+        }
+
+        [RelayCommand]
+        private async Task CheckElement(AutoStep step)
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                var process1 = Process.GetProcessesByName("EZConnect").First();
+                if (process1.HasExited == false)
+                {
+                    using (var app = Application.Attach(process1))
+                    using (var automation = new UIA3Automation())
+                    {
+                        var p = System.Windows.Forms.Cursor.Position;
+                        var element = automation.FromPoint(p);
+                        if (element != null)
+                        {
+                            var text = Constant.GetCachedPath(element);
+                            var data = text.Split("<tab>").Select(x => x.Split("<t>"));
+                            if (data.Any())
+                            {
+                                var name = data.FirstOrDefault()[1];
+                                Clipboard.SetText(name);
+
+                                step.ControlType = ControlTypes.Unknown;
+                                var controlText = data.FirstOrDefault()[2];
+                                if (Enum.TryParse(controlText, out ControlTypes controlType))
+                                {
+                                    step.ControlType = controlType;
+                                    step.ActionType = step.ActionItemSource.FirstOrDefault();
+                                }
+                                step.Param0 = name;
+                                step.CachedPath = text;
+                                App.Bus.Publish<ShowMessage>(new($"Element '{name}' cached !", "Element Info"));
+                            }
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
