@@ -136,6 +136,7 @@ namespace AutomationTool.DataSource
                     case ControlTypes.Unknown:
                         actionType.Add(ActionTypes.DeleteFile);
                         actionType.Add(ActionTypes.CompareFile);
+                        actionType.Add(ActionTypes.CopyFile);
                         actionType.Add(ActionTypes.ShowMessageBox);
                         break;
                 }
@@ -283,5 +284,6 @@ namespace AutomationTool.DataSource
         Select,
         OpenDialog,
         ShowMessageBox,
+        CopyFile,
     }
 }

@@ -832,6 +832,10 @@ namespace AutomationTool.DataSource.Steps
                     result = DeleteFile(_autoStep.Param0);
                     break;
 
+                case ActionTypes.CopyFile:
+                    result = CopyFile(_autoStep.Param0, _autoStep.Param1);
+                    break;
+
                 case ActionTypes.CompareFile:
                     result = await CompareFile(_autoStep.Param0, _autoStep.Param1, _autoStep.Param2);
                     break;
@@ -846,6 +850,22 @@ namespace AutomationTool.DataSource.Steps
                 if (File.Exists(file))
                 {
                     File.Delete(file);
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool CopyFile(string source, string target)
+        {
+            try
+            {
+                if (File.Exists(source))
+                {
+                    File.Copy(source, target, true);
                 }
                 return true;
             }
