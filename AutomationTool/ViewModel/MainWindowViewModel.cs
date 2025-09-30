@@ -10,6 +10,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace AutomationTool.ViewModel
 {
@@ -25,6 +26,13 @@ namespace AutomationTool.ViewModel
         [ObservableProperty]
         [JsonIgnore]
         private bool processingQueue;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(EnableFeature))]
+        [JsonIgnore]
+        private AutoGroup selectedGroup;
+
+        public bool EnableFeature => SelectedGroup != null;
 
         public MainWindowViewModel()
         {
@@ -110,6 +118,9 @@ namespace AutomationTool.ViewModel
                 {
                     step.Parent.Children.Remove(step);
                     step.Parent.Children.Insert(index, step);
+
+                    SelectedGroup = step;
+                    SelectedGroup.IsSelected = true;
                 }
             }
             catch (Exception ex)
@@ -129,11 +140,88 @@ namespace AutomationTool.ViewModel
                 {
                     step.Parent.Children.Remove(step);
                     step.Parent.Children.Insert(index, step);
+
+
+                    SelectedGroup = step;
+                    SelectedGroup.IsSelected = true;
                 }
             }
             catch (Exception ex)
             {
                 App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+            }
+        }
+
+
+        [RelayCommand]
+        private void DeleteItem(AutoGroup step)
+        {
+            try
+            {
+                step.Parent.Children.Remove(step);
+            }
+            catch (Exception ex)
+            {
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+            }
+        }
+
+        [RelayCommand]
+        private void AddItem(AutoGroup step)
+        {
+            try
+            {
+                var newItem = new AutoGroup
+                {
+                    Parent = step,
+                    ParentGuid = step.Guid,
+                };
+                step.Children.Add(newItem);
+            }
+            catch (Exception ex)
+            {
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+            }
+        }
+
+        [RelayCommand]
+        private async Task CopyItem(AutoGroup step)
+        {
+            try
+            {
+                await ViewModelSerializer.SaveObservableProps(step);
+            }
+            catch (Exception ex)
+            {
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+            }
+        }
+
+        [RelayCommand]
+        private async Task PasteItem(AutoGroup step)
+        {
+            try
+            {
+                await ViewModelSerializer.LoadObservableProps(step);
+                step.Guid = System.Guid.NewGuid().ToString();
+
+                foreach (var item in AutoTree)
+                {
+                    UpdateParent(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+            }
+        }
+
+        void UpdateParent(AutoGroup parent)
+        {
+            foreach (var child in parent.Children)
+            {
+                child.Parent = parent;
+                UpdateParent(child);
             }
         }
 
@@ -159,15 +247,6 @@ namespace AutomationTool.ViewModel
             catch (Exception ex)
             {
                 App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
-            }
-
-            void UpdateParent(AutoGroup parent)
-            {
-                foreach (var child in parent.Children)
-                {
-                    child.Parent = parent;
-                    UpdateParent(child);
-                }
             }
         }
 

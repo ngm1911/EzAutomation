@@ -1,20 +1,9 @@
 ﻿using AutomationTool.DataSource;
 using AutomationTool.Model;
 using AutomationTool.ViewModel;
-using FlaUI.Core.AutomationElements;
-using FlaUI.UIA3;
-using HandyControl.Tools.Extension;
-using Newtonsoft.Json.Linq;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Net;
-using System.Reflection;
 using System.Windows;
-using System.Windows.Automation;
 using System.Windows.Controls;
-using System.Xml.Linq;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using Application = FlaUI.Core.Application;
 
 namespace AutomationTool
 {
@@ -102,8 +91,8 @@ namespace AutomationTool
                 {
                     if (parent.ItemContainerGenerator.ContainerFromItem(obj) is TreeViewItem tvi)
                     {
-                        tvi.IsExpanded = false;
                         CollapseAll(tvi.Items, tvi);
+                        tvi.IsExpanded = false;
                     }
                 }
             }
@@ -124,11 +113,16 @@ namespace AutomationTool
                 {
                     if (parent.ItemContainerGenerator.ContainerFromItem(obj) is TreeViewItem tvi)
                     {
-                        tvi.IsExpanded = true;
                         ExpandAll(tvi.Items, tvi);
+                        tvi.IsExpanded = true;
                     }
                 }
             }
+        }
+
+        private void treeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            (DataContext as MainWindowViewModel).SelectedGroup = e.NewValue as AutoGroup;
         }
     }
 }

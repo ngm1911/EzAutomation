@@ -127,4 +127,6 @@ namespace AutomationTool.Model
     public record FinishEnqueueTask(string guid) : IMessage;
 
     public record CloseAllTabs : IMessage;
+
+    public record TreeItemSelected(AutoGroup group) : IMessage;
 }

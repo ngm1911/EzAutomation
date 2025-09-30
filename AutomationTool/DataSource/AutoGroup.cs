@@ -52,6 +52,10 @@ namespace AutomationTool.DataSource
 
         [ObservableProperty]
         [JsonIgnore]
+        private bool isSelected;
+
+        [ObservableProperty]
+        [JsonIgnore]
         private string status;
 
         [ObservableProperty]
@@ -71,65 +75,7 @@ namespace AutomationTool.DataSource
         [ObservableProperty]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         private ObservableCollection<AutoStep> steps = [];
-
-        [RelayCommand]
-        private void AddItem()
-        {
-            try
-            {
-                var newItem = new AutoGroup
-                {
-                    Parent = this,
-                    ParentGuid = this.Guid,
-                };
-                Children.Add(newItem);
-            }
-            catch (Exception ex)
-            {
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
-            }
-        }
-
-        [RelayCommand]
-        private void DeleteItem()
-        {
-            try
-            {
-                Parent.Children.Remove(this);
-            }
-            catch (Exception ex)
-            {
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
-            }
-        }
-        
-        [RelayCommand]
-        private async Task CopyItem()
-        {
-            try
-            {
-                await ViewModelSerializer.SaveObservableProps(this);
-            }
-            catch (Exception ex)
-            {
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
-            }
-        }
-        
-        [RelayCommand]
-        private async Task PasteItem()
-        {
-            try
-            {
-                await ViewModelSerializer.LoadObservableProps(this);
-                this.Guid = System.Guid.NewGuid().ToString();
-            }
-            catch (Exception ex)
-            {
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
-            }
-        }
-        
+                
         [RelayCommand]
         private void Run()
         {
