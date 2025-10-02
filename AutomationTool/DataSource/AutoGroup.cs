@@ -53,6 +53,14 @@ namespace AutomationTool.DataSource
         [ObservableProperty]
         [JsonIgnore]
         private bool isSelected;
+        
+        [ObservableProperty]
+        [JsonIgnore]
+        private bool isExpanded =  true;
+
+        [ObservableProperty]
+        [JsonIgnore]
+        private bool isEditing;
 
         [ObservableProperty]
         [JsonIgnore]
@@ -249,6 +257,14 @@ namespace AutomationTool.DataSource
         partial void OnSelectedChanged(bool value)
         {
             Children.ForEach(x => x.Selected = value);
+        }
+
+        partial void OnIsSelectedChanged(bool value)
+        {
+            if (value == false)
+            {
+                IsEditing = false;
+            }
         }
     }
 }

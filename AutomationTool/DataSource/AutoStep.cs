@@ -121,6 +121,10 @@ namespace AutomationTool.DataSource
                         actionType.Add(ActionTypes.OpenDialog);
                         break;
 
+                    case ControlTypes.Text:
+                        actionType.Add(ActionTypes.GetText);
+                        break;
+
                     case ControlTypes.TextBox:
                         actionType.Add(ActionTypes.SetText);
                         actionType.Add(ActionTypes.GetText);
@@ -153,6 +157,7 @@ namespace AutomationTool.DataSource
                     return new WindowStep(this);
 
                 case ControlTypes.TextBox:
+                case ControlTypes.Text:
                     return new TextBoxStep(this);
 
                 case ControlTypes.Button:
@@ -257,7 +262,7 @@ namespace AutomationTool.DataSource
         //Tab,
         TabItem = 32,
         //Table,
-        //Text,
+        Text,
         //Thumb,
         //TitleBar,
         //ToolBar,

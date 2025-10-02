@@ -56,7 +56,11 @@ namespace AutomationTool.DataSource.Steps
             try
             {
                 var elementUI = GetAutomationElement();
-                return elementUI.AsTextBox().Text == text;
+                if (elementUI?.ControlType == ControlType.Text)
+                {
+                    return elementUI.AsTextBox().Name == text;
+                }
+                return elementUI?.AsTextBox().Text == text;
             }
             catch
             {

@@ -1,6 +1,7 @@
 ﻿using AutomationTool.DataSource;
 using AutomationTool.Model;
 using AutomationTool.ViewModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -78,44 +79,34 @@ namespace AutomationTool
 
         private void btnCollapseAll_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is System.Windows.Controls.MenuItem menuItem &&
-                menuItem.Parent is System.Windows.Controls.ContextMenu ctx &&
-                ctx.PlacementTarget is System.Windows.Controls.TreeView tree)
-            {
-                CollapseAll(tree.Items, tree);
-            }
-
-            void CollapseAll(ItemCollection items, ItemsControl parent)
-            {
-                foreach (var obj in items)
-                {
-                    if (parent.ItemContainerGenerator.ContainerFromItem(obj) is TreeViewItem tvi)
-                    {
-                        CollapseAll(tvi.Items, tvi);
-                        tvi.IsExpanded = false;
-                    }
-                }
-            }
+            ExpandedAll(false);
         }
 
         private void btnExpandAll_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is System.Windows.Controls.MenuItem menuItem &&
-                menuItem.Parent is System.Windows.Controls.ContextMenu ctx &&
-                ctx.PlacementTarget is System.Windows.Controls.TreeView tree)
+            ExpandedAll(true);
+        }
+
+        private void ExpandedAll(bool isExpanded)
+        {
+            try
             {
-                ExpandAll(tree.Items, tree);
+                ExpandedAll((DataContext as MainWindowViewModel).SelectedGroup);
+            }
+            catch (Exception ex)
+            {
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
             }
 
-            void ExpandAll(ItemCollection items, ItemsControl parent)
+            void ExpandedAll(AutoGroup? parent)
             {
-                foreach (var obj in items)
+                if (parent != null)
                 {
-                    if (parent.ItemContainerGenerator.ContainerFromItem(obj) is TreeViewItem tvi)
+                    foreach (var item in parent.Children)
                     {
-                        ExpandAll(tvi.Items, tvi);
-                        tvi.IsExpanded = true;
+                        ExpandedAll(item);
                     }
+                    parent.IsExpanded = isExpanded;
                 }
             }
         }

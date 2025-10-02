@@ -58,6 +58,19 @@ namespace AutomationTool.ViewModel
         }
 
         [RelayCommand]
+        private void Rename(AutoGroup step)
+        {
+            try
+            {
+                step.IsEditing = true;
+            }
+            catch (Exception ex)
+            {
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+            }
+        }
+
+        [RelayCommand]
         private void Run()
         {
             try
@@ -151,7 +164,6 @@ namespace AutomationTool.ViewModel
                 App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
             }
         }
-
 
         [RelayCommand]
         private void DeleteItem(AutoGroup step)

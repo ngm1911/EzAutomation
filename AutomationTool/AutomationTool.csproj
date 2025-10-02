@@ -87,12 +87,6 @@
     <Resource Include="Icon\Start.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Icon\Start_32.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Icon\Stop_32.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="Icon\Up.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
