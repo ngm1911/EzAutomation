@@ -7,10 +7,6 @@ using HandyControl.Tools.Extension;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows;
-using System.Windows.Media;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace AutomationTool.ViewModel
 {

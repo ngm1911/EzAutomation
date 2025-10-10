@@ -3,6 +3,7 @@ using AutomationTool.Model;
 using AutomationTool.ViewModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -46,6 +47,8 @@ namespace AutomationTool
                 var data = treeView.SelectedItem as AutoGroup;
                 AddOrSelectTab(data);
             }
+
+            e.Handled = true;
         }
 
         void AddOrSelectTab(AutoGroup viewModel)
@@ -114,6 +117,14 @@ namespace AutomationTool
         private void treeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             (DataContext as MainWindowViewModel).SelectedGroup = e.NewValue as AutoGroup;
+        }
+
+        private void txtGroupName_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter || e.Key == System.Windows.Input.Key.Escape)
+            {
+                (DataContext as MainWindowViewModel).SelectedGroup.IsEditing = false;
+            }
         }
     }
 }

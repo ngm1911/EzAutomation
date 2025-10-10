@@ -5,7 +5,6 @@ using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using FlaUI.Core.Input;
 using FlaUI.UIA3;
-using Microsoft.VisualBasic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;

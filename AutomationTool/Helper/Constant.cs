@@ -1,15 +1,9 @@
-﻿using AutomationTool.DataSource;
-using FlaUI.Core;
+﻿using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
-using FlaUI.Core.Identifiers;
 using FlaUI.UIA3;
-using FlaUI.UIA3.Converters;
-using FlaUI.UIA3.EventHandlers;
-using FlaUI.Core.EventHandlers;
 using System.Diagnostics;
 using System.Drawing;
-using FlaUI.Core.Input;
 
 namespace AutomationTool.Helper
 {
@@ -70,6 +64,10 @@ namespace AutomationTool.Helper
                             if (child?.Length == 0)
                             {
                                 child = element?.FindAllChildren(cf => cf.ByName(name));
+                            }
+                            if (child?.Length == 0 || child?.Length > 1)
+                            {
+                                child = element?.FindAllChildren(cf => cf.ByControlType(controlType));
                             }
                             if (child?.Length == 0 || child?.Length > 1)
                             {

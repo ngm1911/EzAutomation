@@ -91,7 +91,7 @@
                     <TextBlock Text="Move" HorizontalAlignment="Center"/>
                 </StackPanel>
                 <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,5,0,5"/>
-                <StackPanel HorizontalAlignment="Left" Margin="5" IsEnabled="{Binding EnableFeature}">
+                <StackPanel HorizontalAlignment="Left" Margin="5" >
                     <StackPanel Orientation="Horizontal">
                         <Button Command="{Binding RunCommand}" CommandParameter="{Binding}" VerticalAlignment="Top" 
                                 BorderBrush="Transparent" Height="70" Width="70">
@@ -113,7 +113,8 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Column="0" LastChildFill="True">
-                <TreeView Margin="5" x:Name="treeView" SelectedItemChanged="treeView_SelectedItemChanged" ItemsSource="{Binding AutoTree}" MouseDoubleClick="TreeView_MouseDoubleClick">
+                <TreeView Margin="5" x:Name="treeView" SelectedItemChanged="treeView_SelectedItemChanged" 
+                          ItemsSource="{Binding AutoTree}" PreviewMouseDoubleClick="TreeView_MouseDoubleClick">
                     <TreeView.ItemContainerStyle>
                         <Style TargetType="TreeViewItem" BasedOn="{StaticResource {x:Type TreeViewItem}}">
                             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
@@ -130,7 +131,7 @@
                         <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                             <StackPanel Margin="3">
                                 <DockPanel>
-                                    <Image Width="18" Height="18" Stretch="Uniform" Margin="2,0,3,0">
+                                    <Image Width="18" Height="18" Stretch="Uniform" Margin="2,0,5,0">
                                         <Image.Style>
                                             <Style TargetType="Image">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -165,7 +166,7 @@
                                             </Style>
                                         </TextBlock.Style>
                                     </TextBlock>
-                                    <TextBox x:Name="txtGroupName" Margin="0,0,2,0" Text="{Binding Name}" VerticalAlignment="Center">
+                                    <TextBox x:Name="txtGroupName" Margin="0,0,2,0" Text="{Binding Name}" VerticalAlignment="Center" PreviewKeyDown="txtGroupName_PreviewKeyDown">
                                         <TextBox.Style>
                                             <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                                                 <Setter Property="Visibility" Value="Collapsed"/>

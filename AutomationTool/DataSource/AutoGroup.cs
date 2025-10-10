@@ -2,16 +2,12 @@
 using AutomationTool.Model;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FlaUI.Core.AutomationElements;
-using FlaUI.Core.Definitions;
 using FlaUI.UIA3;
 using HandyControl.Tools.Extension;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Windows;
-using System.Windows.Automation;
 using Application = FlaUI.Core.Application;
 
 namespace AutomationTool.DataSource
@@ -24,18 +20,26 @@ namespace AutomationTool.DataSource
             {
                 if (m.guid == this.Guid || m.guid == System.Guid.Empty.ToString())
                 {
-                    if (Children.All(x => x.Status == "Passed")
-                        && Steps.All(x => x.Status == "Passed"))
+                    if (Selected)
                     {
-                        Status = "Passed";
-                    }
-                    else
-                    {
-                        if (Children.Any(x => x.Status == "Error")
-                            || Steps.Any(x => x.Status == "Error"))
+                        if (Children.All(x => x.Status == "Passed")
+                            && Steps.All(x => x.Status == "Passed"))
                         {
-                            Status = "Error";
+                            Status = "Passed";
                         }
+                        else
+                        {
+                            if (Children.Any(x => x.Status == "Error")
+                                || Steps.Any(x => x.Status == "Error"))
+                            {
+                                Status = "Error";
+                            }
+                        }
+                    }
+
+                    if (ParentGuid != System.Guid.Empty.ToString())
+                    {
+                        App.Bus.Publish<FinishEnqueueTask>(new(ParentGuid));
                     }
                 }
             });
