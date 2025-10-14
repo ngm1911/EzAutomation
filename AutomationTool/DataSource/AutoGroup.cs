@@ -22,17 +22,17 @@ namespace AutomationTool.DataSource
                 {
                     if (Selected)
                     {
-                        if (Children.All(x => x.Status == "Passed")
-                            && Steps.All(x => x.Status == "Passed"))
+                        if (Children.All(x => x.Status == Constant.Passed)
+                            && Steps.All(x => x.Status == Constant.Passed))
                         {
-                            Status = "Passed";
+                            Status = Constant.Passed;
                         }
                         else
                         {
-                            if (Children.Any(x => x.Status == "Error")
-                                || Steps.Any(x => x.Status == "Error"))
+                            if (Children.Any(x => x.Status == Constant.Error)
+                                || Steps.Any(x => x.Status == Constant.Error))
                             {
-                                Status = "Error";
+                                Status = Constant.Error;
                             }
                         }
                     }
@@ -100,7 +100,7 @@ namespace AutomationTool.DataSource
                         App.Bus.Publish<CloseAllTabs>(new());
                     }));
 
-                    Status = "Running";
+                    Status = Constant.Running;
                     Steps.ForEach(x => x.Status = string.Empty);
                     foreach (var item in Steps)
                     {
@@ -119,8 +119,8 @@ namespace AutomationTool.DataSource
             }
             catch (Exception ex)
             {
-                Status = "Error";
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+                Status = Constant.Error;
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), Constant.Error));
             }
         }
 
@@ -133,7 +133,7 @@ namespace AutomationTool.DataSource
             }
             catch (Exception ex)
             {
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), Constant.Error));
             }
         }
 
@@ -146,7 +146,7 @@ namespace AutomationTool.DataSource
             }
             catch (Exception ex)
             {
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), Constant.Error));
             }
         }
 
@@ -190,7 +190,7 @@ namespace AutomationTool.DataSource
             }
             catch (Exception ex)
             {
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), Constant.Error));
             }
         }
 
@@ -209,7 +209,7 @@ namespace AutomationTool.DataSource
             }
             catch (Exception ex)
             {
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), Constant.Error));
             }
         }
 
@@ -228,7 +228,7 @@ namespace AutomationTool.DataSource
             }
             catch (Exception ex)
             {
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), Constant.Error));
             }
         }
 
@@ -242,7 +242,7 @@ namespace AutomationTool.DataSource
                     App.Bus.Publish<CloseAllTabs>(new());
                 }));
 
-                Status = "Running";
+                Status = Constant.Running;
                 Steps.SkipWhile(x => x != step).ForEach(x => x.Status = string.Empty);
                 foreach (var item in Steps.SkipWhile(x => x != step))
                 {
@@ -254,7 +254,7 @@ namespace AutomationTool.DataSource
             }
             catch (Exception ex)
             {
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), Constant.Error));
             }
         }
 

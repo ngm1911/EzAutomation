@@ -9,6 +9,10 @@ namespace AutomationTool.Helper
 {
     public static class Constant
     {
+        public static string Passed;
+        public static string Error;
+        public static string Running;
+
         public static Window? CachedMainWindow;
 
         public static Window? GetCachedWindow()

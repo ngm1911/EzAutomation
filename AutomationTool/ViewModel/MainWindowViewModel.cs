@@ -292,7 +292,7 @@ namespace AutomationTool.ViewModel
                     }
                     catch (Exception ex)
                     {
-                        queueItem.autoGroup.Status = "Error";
+                        queueItem.autoGroup.Status = Constant.Error;
                         queueItem.autoGroup.Error = ex.Message;
                         ProcessingQueue = false;
                         _queue.Clear();

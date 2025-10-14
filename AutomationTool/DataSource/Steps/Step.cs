@@ -5,9 +5,11 @@ using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
 using FlaUI.Core.Input;
 using FlaUI.UIA3;
+using Microsoft.Win32;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.ServiceProcess;
 namespace AutomationTool.DataSource.Steps
 {
     internal interface IStep
@@ -804,7 +806,12 @@ namespace AutomationTool.DataSource.Steps
                 string path = Path.Combine(applicationPath, "EZConnect.exe");
                 if (Path.Exists(path))
                 {
-                    var p = Process.Start(path);
+                    var psi = new ProcessStartInfo(path)
+                    {
+                        UseShellExecute = true,
+                        Verb = "runas"
+                    };
+                    var p = Process.Start(psi);
                     return p.WaitForInputIdle();
                 }
                 return false;
@@ -841,6 +848,18 @@ namespace AutomationTool.DataSource.Steps
 
                 case ActionTypes.CompareFile:
                     result = await CompareFile(_autoStep.Param0, _autoStep.Param1, _autoStep.Param2);
+                    break;
+
+                case ActionTypes.ChangeDateTime:
+                    result = ChangeDateTime(_autoStep.Param0, _autoStep.Param1);
+                    break;
+
+                case ActionTypes.ResetDateTime:
+                    result = ChangeDateTime(string.Empty, string.Empty);
+                    break;
+
+                case ActionTypes.RestartService:
+                    result = RestartService(_autoStep.Param0);
                     break;
             }
             return result;
@@ -924,6 +943,72 @@ namespace AutomationTool.DataSource.Steps
                 }
 
                 return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool ChangeDateTime(string date, string time)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(date) && string.IsNullOrWhiteSpace(time))
+                {
+                    EnableAutoTime();
+                }
+                else if (int.TryParse(date, out int intDate))
+                {
+                    DisableAutoTime();
+                    RunCmd($"date {DateTime.Now.AddDays(intDate).ToShortDateString()}");
+                    RunCmd($"time {time}");
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+
+            void RunCmd(string args)
+            {
+                var p = new ProcessStartInfo("cmd.exe", "/C " + args) { CreateNoWindow = true, UseShellExecute = false };
+                Process.Start(p)?.WaitForExit();
+            }
+
+            void DisableAutoTime()
+            {
+                RunCmd("net stop w32time");
+                RunCmd("sc config w32time start= disabled");
+                using (var key = Registry.LocalMachine.OpenSubKey(
+                    @"SYSTEM\CurrentControlSet\Services\W32Time\Parameters", writable: true))
+                {
+                    if (key != null) key.SetValue("Type", "NoSync", RegistryValueKind.String);
+                }
+            }
+
+            void EnableAutoTime()
+            {
+                RunCmd("sc config w32time start= auto");
+                RunCmd("net start w32time");
+                using (var key = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\W32Time\Parameters", writable: true))
+                {
+                    if (key != null) key.SetValue("Type", "NTP", RegistryValueKind.String);
+                }
+            }
+        }
+
+        private bool RestartService(string serviceName)
+        {
+            try
+            {
+                var service = new ServiceController(serviceName);
+                service.Stop();
+                service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+                service.Start();
+                service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+                return true;
             }
             catch
             {

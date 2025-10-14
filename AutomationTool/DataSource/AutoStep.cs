@@ -1,20 +1,9 @@
 ﻿using AutomationTool.DataSource.Steps;
 using AutomationTool.Helper;
-using AutomationTool.Model;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FlaUI.Core;
-using FlaUI.Core.AutomationElements;
-using FlaUI.Core.Definitions;
-using FlaUI.Core.Input;
-using FlaUI.Core.WindowsAPI;
-using FlaUI.UIA3;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Windows.Automation;
 
 namespace AutomationTool.DataSource
 {
@@ -142,6 +131,9 @@ namespace AutomationTool.DataSource
                         actionType.Add(ActionTypes.CompareFile);
                         actionType.Add(ActionTypes.CopyFile);
                         actionType.Add(ActionTypes.ShowMessageBox);
+                        actionType.Add(ActionTypes.ChangeDateTime);
+                        actionType.Add(ActionTypes.ResetDateTime);
+                        actionType.Add(ActionTypes.RestartService);
                         break;
                 }
 
@@ -205,19 +197,19 @@ namespace AutomationTool.DataSource
         [RelayCommand]
         private async Task<bool> RunStep()
         {
-            Status = "Running";
-            bool result = SkipError;
+            Status = Constant.Running;
             IStep? step = GetBaseStep();
-            result = await step?.Action();
+            var result = await step?.Action();
 
-            Status = "Passed";
-            if (!result)
+            if (!result && !SkipError)
             {
-                Status = "Error";
+                Status = Constant.Error;
                 Error = "Step run failed";
                 throw new Exception(Error);
             }
 
+            Status = Constant.Passed;
+            result = SkipError; // set it is true
             if (string.IsNullOrWhiteSpace(CachedPath))
             {
                 CachedPath = Constant.GetCachedPath(step.GetElementUI());
@@ -290,5 +282,8 @@ namespace AutomationTool.DataSource
         OpenDialog,
         ShowMessageBox,
         CopyFile,
+        ChangeDateTime,
+        ResetDateTime,
+        RestartService,
     }
 }
