@@ -134,6 +134,7 @@ namespace AutomationTool.DataSource
                         actionType.Add(ActionTypes.ChangeDateTime);
                         actionType.Add(ActionTypes.ResetDateTime);
                         actionType.Add(ActionTypes.RestartService);
+                        actionType.Add(ActionTypes.WaitTime);
                         break;
                 }
 
@@ -285,5 +286,6 @@ namespace AutomationTool.DataSource
         ChangeDateTime,
         ResetDateTime,
         RestartService,
+        WaitTime,
     }
 }

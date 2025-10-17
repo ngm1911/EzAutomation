@@ -861,6 +861,10 @@ namespace AutomationTool.DataSource.Steps
                 case ActionTypes.RestartService:
                     result = RestartService(_autoStep.Param0);
                     break;
+
+                case ActionTypes.WaitTime:
+                    result = await WaitTime(_autoStep.Param0);
+                    break;
             }
             return result;
         }
@@ -1008,6 +1012,22 @@ namespace AutomationTool.DataSource.Steps
                 service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
                 service.Start();
                 service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        private async Task<bool> WaitTime(string minutes)
+        {
+            try
+            {
+                if (int.TryParse(minutes, out int intMinutes))
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(intMinutes));
+                }
                 return true;
             }
             catch
