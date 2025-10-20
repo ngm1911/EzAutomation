@@ -996,6 +996,8 @@ namespace AutomationTool.DataSource.Steps
             {
                 RunCmd("sc config w32time start= auto");
                 RunCmd("net start w32time");
+                RunCmd("w32tm /config /update");
+                RunCmd("w32tm /resync /force");
                 using (var key = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\W32Time\Parameters", writable: true))
                 {
                     if (key != null) key.SetValue("Type", "NTP", RegistryValueKind.String);
