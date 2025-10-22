@@ -2,6 +2,7 @@
 using AutomationTool.Model;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FlaUI.Core.AutomationElements;
 using FlaUI.UIA3;
 using HandyControl.Tools.Extension;
 using Newtonsoft.Json;

@@ -631,6 +631,10 @@ namespace AutomationTool.DataSource.Steps
                 case ActionTypes.Open:
                     result = Open();
                     break;
+
+                case ActionTypes.CountItems:
+                    result = CountItems();
+                    break;
             }
             return Task.FromResult(result);
         }
@@ -702,6 +706,24 @@ namespace AutomationTool.DataSource.Steps
                             }
                         }
                     }
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool CountItems()
+        {
+            try
+            {
+                var grid = Constant.GetCachedWindow()?.FindFirstDescendant(cf => cf.ByControlType(ControlType.Custom));
+                var rows = grid?.FindAllDescendants(cf => cf.ByControlType(ControlType.DataItem));
+                if (int.TryParse(_autoStep.Param0, out int stepInput) && stepInput == rows.Length)
+                {
+                    return true;
                 }
                 return false;
             }

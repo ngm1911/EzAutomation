@@ -70,6 +70,7 @@ namespace AutomationTool.DataSource
                     case ControlTypes.DataGrid:
                         actionType.Add(ActionTypes.Select);
                         actionType.Add(ActionTypes.Open);
+                        actionType.Add(ActionTypes.CountItems);
                         break;
 
                     case ControlTypes.RadioButton:
@@ -287,5 +288,6 @@ namespace AutomationTool.DataSource
         ResetDateTime,
         RestartService,
         WaitTime,
+        CountItems,
     }
 }
