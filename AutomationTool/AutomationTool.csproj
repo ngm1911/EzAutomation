@@ -72,6 +72,9 @@
     <Resource Include="Icon\Loading.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Icon\OpenFile.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Icon\Paste.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

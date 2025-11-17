@@ -12,13 +12,16 @@ namespace AutomationTool.ViewModel
 {
     public partial class MainWindowViewModel : ObservableObject
     {
+        public string Title => $"Automation tool - File: {Path.GetFileName(currentPath)}";
+
+        string currentPath = $"AutoTree.json";
         CancellationTokenSource _tokenSource = new();
         TaskCompletionSource _pauseEvent;
         Queue<(AutoGroup autoGroup, Func<Task> task)> _queue = new();
 
         [ObservableProperty]
         private ObservableCollection<AutoGroup> autoTree = [];
-
+        
         [ObservableProperty]
         [JsonIgnore]
         private bool processingQueue;
@@ -45,7 +48,31 @@ namespace AutomationTool.ViewModel
         {
             try
             {
-                await ViewModelSerializer.SaveObservableProps(this, $"AutoTree.json");
+                await ViewModelSerializer.SaveObservableProps(this, currentPath);
+            }
+            catch (Exception ex)
+            {
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+            }
+        }
+        
+
+        [RelayCommand]
+        private async Task SaveAs()
+        {
+            try
+            {
+                var dlg = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "Json files (*.json)|*.json|All files (*.*)|*.*",
+                    FileName = "AutoTree.json"
+                };
+                if (dlg.ShowDialog() == true)
+                {
+                    currentPath = dlg.FileName;
+                    OnPropertyChanged(nameof(Title));
+                    await SaveCommand.ExecuteAsync(null);
+                }
             }
             catch (Exception ex)
             {
@@ -238,9 +265,9 @@ namespace AutomationTool.ViewModel
         {
             try
             {
-                if (File.Exists("AutoTree.json"))
+                if (File.Exists(currentPath))
                 {
-                    await ViewModelSerializer.LoadObservableProps(this, $"AutoTree.json");
+                    await ViewModelSerializer.LoadObservableProps(this, currentPath);
 
                     foreach (var item in AutoTree)
                     {
@@ -250,6 +277,29 @@ namespace AutomationTool.ViewModel
                 else
                 {
                     AutoTree.Add(new AutoGroup() { Name = "Root" });
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), "Error"));
+            }
+        }
+
+        [RelayCommand]
+        private async Task OpenFile()
+        {
+            try
+            {
+                var dlg = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "Json files (*.json)|*.json|All files (*.*)|*.*"
+                };
+
+                if (dlg.ShowDialog() == true)
+                {
+                    currentPath = dlg.FileName;
+                    OnPropertyChanged(nameof(Title));
+                    await LoadCommand.ExecuteAsync(null);
                 }
             }
             catch (Exception ex)

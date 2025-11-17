@@ -88,7 +88,14 @@ namespace AutomationTool.DataSource
         [ObservableProperty]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         private ObservableCollection<AutoStep> steps = [];
-                
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(EnableFeature))]
+        [JsonIgnore]
+        private AutoStep? selectedStep;
+
+        public bool EnableFeature => SelectedStep != null;
+
         [RelayCommand]
         private void Run()
         {
@@ -204,8 +211,12 @@ namespace AutomationTool.DataSource
                 index--;
                 if (index > -1)
                 {
+                    SelectedStep = null;
+
                     Steps.Remove(step);
                     Steps.Insert(index, step);
+
+                    SelectedStep = step;
                 }
             }
             catch (Exception ex)
@@ -223,8 +234,12 @@ namespace AutomationTool.DataSource
                 index++;
                 if (index < Steps.Count)
                 {
+                    SelectedStep = null;
+
                     Steps.Remove(step);
                     Steps.Insert(index, step);
+
+                    SelectedStep = step;
                 }
             }
             catch (Exception ex)

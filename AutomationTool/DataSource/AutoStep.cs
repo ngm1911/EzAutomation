@@ -3,6 +3,7 @@ using AutomationTool.Helper;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.ObjectModel;
 
 namespace AutomationTool.DataSource
@@ -16,6 +17,10 @@ namespace AutomationTool.DataSource
         [ObservableProperty]
         [JsonIgnore]
         private string status;
+
+        [ObservableProperty]
+        [JsonIgnore]
+        private IStep? currentStep;
         
         [ObservableProperty]
         [JsonIgnore]
@@ -60,92 +65,20 @@ namespace AutomationTool.DataSource
         {
             get
             {
-                List<ActionTypes> actionType = [];
-                switch (ControlType)
-                {
-                    case ControlTypes.Window:
-                        actionType.Add(ActionTypes.Start);
-                        break;
-
-                    case ControlTypes.DataGrid:
-                        actionType.Add(ActionTypes.Select);
-                        actionType.Add(ActionTypes.Open);
-                        actionType.Add(ActionTypes.CountItems);
-                        break;
-
-                    case ControlTypes.RadioButton:
-                        actionType.Add(ActionTypes.Select);
-                        break;
-
-                    case ControlTypes.CheckBox:
-                        actionType.Add(ActionTypes.Check);
-                        actionType.Add(ActionTypes.UnCheck);
-                        break;
-
-                    case ControlTypes.DataItem:
-                        actionType.Add(ActionTypes.Select);
-                        actionType.Add(ActionTypes.RightClick);
-                        actionType.Add(ActionTypes.DoubleClick);
-                        break;
-
-                    case ControlTypes.ComboBox:
-                        actionType.Add(ActionTypes.Select);
-                        break;
-                        
-                    case ControlTypes.MenuItem:
-                        actionType.Add(ActionTypes.Select);
-                        break;
-
-                    case ControlTypes.TabItem:
-                        actionType.Add(ActionTypes.Select);
-                        actionType.Add(ActionTypes.Close);
-                        break;
-
-                    case ControlTypes.SplitButton:
-                        actionType.Add(ActionTypes.Click);
-                        break;
-
-                    case ControlTypes.Button:
-                        actionType.Add(ActionTypes.Click);
-                        actionType.Add(ActionTypes.GetText);
-                        actionType.Add(ActionTypes.OpenDialog);
-                        break;
-
-                    case ControlTypes.Text:
-                        actionType.Add(ActionTypes.GetText);
-                        break;
-
-                    case ControlTypes.TextBox:
-                        actionType.Add(ActionTypes.SetText);
-                        actionType.Add(ActionTypes.GetText);
-                        break;
-                        
-                    case ControlTypes.Pane:
-                        actionType.Add(ActionTypes.Select);
-                        actionType.Add(ActionTypes.DoubleClick);
-                        actionType.Add(ActionTypes.RightClick);
-                        break;
-
-                    default:
-                    case ControlTypes.Unknown:
-                        actionType.Add(ActionTypes.DeleteFile);
-                        actionType.Add(ActionTypes.CompareFile);
-                        actionType.Add(ActionTypes.CopyFile);
-                        actionType.Add(ActionTypes.ShowMessageBox);
-                        actionType.Add(ActionTypes.ChangeDateTime);
-                        actionType.Add(ActionTypes.ResetDateTime);
-                        actionType.Add(ActionTypes.RestartService);
-                        actionType.Add(ActionTypes.WaitTime);
-                        break;
-                }
-
-                return [.. actionType];
+                if (CurrentStep is null)
+                    CurrentStep = GetBaseStep(ControlType);
+                return [.. CurrentStep?.ActionType()];
             }
         }
 
-        private IStep? GetBaseStep()
+        partial void OnControlTypeChanged(ControlTypes value)
         {
-            switch (ControlType)
+            CurrentStep = GetBaseStep(value);
+        }
+
+        IStep? GetBaseStep(ControlTypes value)
+        {
+            switch (value)
             {
                 case ControlTypes.Window:
                     return new WindowStep(this);
@@ -162,10 +95,10 @@ namespace AutomationTool.DataSource
 
                 case ControlTypes.TabItem:
                     return new TabControlStep(this);
-                    
+
                 case ControlTypes.Pane:
                     return new PaneStep(this);
-                    
+
                 case ControlTypes.ComboBox:
                     return new DropDownStep(this);
 
@@ -200,8 +133,8 @@ namespace AutomationTool.DataSource
         private async Task<bool> RunStep()
         {
             Status = Constant.Running;
-            IStep? step = GetBaseStep();
-            var result = await step?.Action();
+            CurrentStep ??= GetBaseStep(ControlType);
+            var result = await CurrentStep?.Action();
 
             if (!result && !SkipError)
             {
@@ -214,7 +147,7 @@ namespace AutomationTool.DataSource
             result = SkipError; // set it is true
             if (string.IsNullOrWhiteSpace(CachedPath))
             {
-                CachedPath = Constant.GetCachedPath(step.GetElementUI());
+                CachedPath = Constant.GetCachedPath(CurrentStep.GetElementUI());
             }
             return result;
         }   
@@ -289,5 +222,6 @@ namespace AutomationTool.DataSource
         RestartService,
         WaitTime,
         CountItems,
+        ExistedFile,
     }
 }
