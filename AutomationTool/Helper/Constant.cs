@@ -1,11 +1,11 @@
 ﻿using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
+using FlaUI.Core.Tools;
 using FlaUI.UIA3;
-using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Security.RightsManagement;
+using System.Xml.Linq;
 
 namespace AutomationTool.Helper
 {
@@ -46,77 +46,81 @@ namespace AutomationTool.Helper
         public static AutomationElement? GetCachedElement(string cachedPath)
         {
             AutomationElement? element = null;
-            try
+            IEnumerable<string> paths;
+            if (string.IsNullOrWhiteSpace(cachedPath) == false)
             {
-                if (string.IsNullOrWhiteSpace(cachedPath) == false)
-                {
-                    element = GetCachedWindow();
-                    foreach (var item in cachedPath.Split("<tab>").Reverse())
-                    {
-                        try
-                        {
-                            AutomationElement? tempElement = null;
-                            var items = item.Split("<t>");
-                            if (items.All(x => string.IsNullOrWhiteSpace(x)))
-                            {
-                                continue;
-                            }
-                            var automationId = items[0];
-                            var name = items[1];
-                            var controlType = Enum.Parse<ControlType>(items[2]);
-                            int.TryParse(items[3], out int index);
-                            if (controlType == ControlType.Window)
-                            {
-                                var process = Process.GetProcessesByName("EZConnect").FirstOrDefault(x => x.HasExited == false);
-                                using (var app = Application.Attach(process!))
-                                using (var automation = new UIA3Automation())
-                                {
-                                    element = app.GetAllTopLevelWindows(automation).FirstOrDefault(x => x.Title == name);
-                                    continue;
-                                }
-                            }
-                            if (string.IsNullOrWhiteSpace(automationId) == false)
-                            {
-                                tempElement = element?.FindFirstChild(cf => cf.ByAutomationId(automationId));
-                            }
-                            if (tempElement == null || tempElement.ControlType != controlType || tempElement.Name != name)
-                            {
-                                var child = element?.FindAllChildren(cf => cf.ByName(name).And(cf.ByControlType(controlType)));
-                                if (child?.Length == 0)
-                                {
-                                    child = element?.FindAllChildren(cf => cf.ByName(name));
-                                }
-                                if (child?.Length == 0 || child?.Length > 1)
-                                {
-                                    child = element?.FindAllChildren(cf => cf.ByControlType(controlType));
-                                }
-                                if (child?.Length == 0 || child?.Length > 1)
-                                {
-                                    child = [element.FindChildAt(index)];
-                                }
-                                tempElement = child?.FirstOrDefault();
-                            }
-                            if (tempElement == null)
-                            {
-                                element = null;
-                                break;
-                            }
+                element = GetCachedWindow();
+                paths = cachedPath.Split("<tab>").Reverse();
 
-                            element = tempElement;
-                        }
-                        catch
+                int i = 0;
+            RETRY:
+                try
+                {
+                    foreach (var item in paths)
+                    {
+                        AutomationElement? tempElement = null;
+                        var items = item.Split("<t>");
+                        if (items.All(x => string.IsNullOrWhiteSpace(x)))
                         {
+                            continue;
+                        }
+                        var automationId = items[0];
+                        var name = items[1];
+                        var controlType = Enum.Parse<ControlType>(items[2]);
+                        int.TryParse(items[3], out int index);
+                        if (string.IsNullOrWhiteSpace(automationId) == false)
+                        {
+                            tempElement = element?.FindFirstChild(cf => cf.ByAutomationId(automationId));
+                        }
+                        if (tempElement == null || tempElement.ControlType != controlType || tempElement.Name != name)
+                        {
+                            var child = element?.FindAllChildren(cf => cf.ByName(name).And(cf.ByControlType(controlType)));
+                            if (child?.Length == 0 && string.IsNullOrWhiteSpace(name) == false)
+                            {
+                                child = element?.FindAllChildren(cf => cf.ByName(name));
+                            }
+                            if (child?.Length == 0 || child?.Length > 1)
+                            {
+                                child = element?.FindAllChildren(cf => cf.ByControlType(controlType));
+                            }
+                            if (child?.Length == 0 || child?.Length > 1)
+                            {
+                                child = [element.FindChildAt(index)];
+                            }
+                            tempElement = child?.FirstOrDefault();
+                        }
+                        if (tempElement == null)
+                        {
+                            element = null;
+                            break;
+                        }
+
+                        element = tempElement;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    element = null;
+
+                    if (i == 0)
+                    {
+                        i++;
+                        paths = cachedPath.Split("<tab>").Reverse().SkipWhile(x => Enum.TryParse<ControlType>(x.Split("<t>")[2], out ControlType controlType) == false || controlType != ControlType.Window);
+                        var process = Process.GetProcessesByName("EZConnect").FirstOrDefault(x => x.HasExited == false);
+                        using (var app = Application.Attach(process!))
+                        using (var automation = new UIA3Automation())
+                        {
+                            var name = paths.FirstOrDefault().Split("<t>")[1];
+                            element = app.GetAllTopLevelWindows(automation).FirstOrDefault(x => x.Title == name);
+                            goto RETRY;
                         }
                     }
                 }
             }
-            catch
-            {
-                element = null;
-            }
+
             return element;
         }
-        
+
         public static string GetCachedPath(AutomationElement? element)
         {
             string cachedPath = string.Empty;
@@ -137,7 +141,7 @@ namespace AutomationTool.Helper
                 {
                     var p = System.Windows.Forms.Cursor.Position;
                     var rect = element.BoundingRectangle;
-                    var relative = new Point(p.X - rect.Left,p.Y - rect.Top);
+                    var relative = new Point(p.X - rect.Left, p.Y - rect.Top);
 
                     cachedPath += $"<t>{relative.X},{relative.Y}";
                 }

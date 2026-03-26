@@ -1,7 +1,7 @@
 ; ---------------- Cáº¥u hÃ¬nh chÃ­nh ----------------
 [Setup]
 AppName=AutomationTool
-AppVersion=1.0.0.19
+AppVersion=1.0.0.23
 DefaultDirName={pf}\AutomationTool
 DefaultGroupName=AutomationTool
 UninstallDisplayIcon={app}\AutomationTool.exe
