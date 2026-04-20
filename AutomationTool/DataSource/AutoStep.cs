@@ -59,6 +59,9 @@ namespace AutomationTool.DataSource
         [ObservableProperty]
         private bool skipError;
 
+        [ObservableProperty]
+        private bool useVariable;
+
         public ObservableCollection<ControlTypes> ControlItemSource { get; } = [.. Enum.GetValues(typeof(ControlTypes)).Cast<ControlTypes>()];
 
         public ObservableCollection<ActionTypes> ActionItemSource
@@ -223,5 +226,6 @@ namespace AutomationTool.DataSource
         WaitTime,
         CountItems,
         ExistedFile,
+        Variable,
     }
 }

@@ -114,7 +114,18 @@ namespace AutomationTool.DataSource
                     {
                         App.Bus.Publish<EnqueueTask>(new(this, async () =>
                         {
-                            await item.RunStepCommand.ExecuteAsync(null);
+                            if (Status != Constant.Error)
+                            {
+                                try
+                                {
+                                    await item.RunStepCommand.ExecuteAsync(null);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Error = ex.Message;
+                                    Status = Constant.Error;
+                                }
+                            }
                         }));
                     }
                 }
@@ -128,7 +139,6 @@ namespace AutomationTool.DataSource
             catch (Exception ex)
             {
                 Status = Constant.Error;
-                App.Bus.Publish<ShowMessage>(new(string.Format($"{ex.Message}{Environment.NewLine}{ex.StackTrace}"), Constant.Error));
             }
         }
 

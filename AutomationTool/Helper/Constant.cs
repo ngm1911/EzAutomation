@@ -5,6 +5,7 @@ using FlaUI.Core.Tools;
 using FlaUI.UIA3;
 using System.Diagnostics;
 using System.Drawing;
+using System.Windows.Media;
 using System.Xml.Linq;
 
 namespace AutomationTool.Helper
@@ -14,6 +15,7 @@ namespace AutomationTool.Helper
         public static string Passed = "Passed";
         public static string Error = "Error";
         public static string Running = "Running";
+        public static Dictionary<string, string> VARIABLES_KEY;
 
         public static Window? CachedMainWindow;
 
@@ -163,6 +165,20 @@ namespace AutomationTool.Helper
             catch { }
 
             return cachedPath;
+        }
+
+        public static bool UpdateVariable(ref string? text)
+        {
+            foreach (var variable in VARIABLES_KEY)
+            {
+                if (text?.Contains(variable.Key) == true)
+                {
+                    text = text.Replace(variable.Key, variable.Value);
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -1,0 +1,143 @@
+<UserControl x:Class="AutomationTool.Views.ToolbarView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="100" d:DesignWidth="800">
+    <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Margin="5">
+        <DockPanel LastChildFill="False">
+
+            <StackPanel HorizontalAlignment="Left" Margin="5">
+                <StackPanel Orientation="Horizontal">
+                    <Button Command="{Binding OpenFileCommand}" BorderBrush="Transparent" DockPanel.Dock="Right" Height="70" Width="70" ToolTip="Open File">
+                        <StackPanel>
+                            <Image Source="/Icon/OpenFile.png" Width="32" Height="32" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Open" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <hc:SplitButton Command="{Binding SaveCommand}" DockPanel.Dock="Right" Height="70" Width="85"
+                                    BorderBrush="Transparent" ToolTip="Save process">
+                        <StackPanel>
+                            <Image Source="/Icon/Save.png" Width="32" Height="32" Margin="2,2,-5,2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Margin="5,0,0,0" Text="Save" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <hc:SplitButton.DropDownContent>
+                            <StackPanel>
+                                <Button DockPanel.Dock="Right" BorderBrush="Transparent" Command="{Binding SaveAsCommand}" ToolTip="Save to file" Content="Save to file"/>
+                            </StackPanel>
+                        </hc:SplitButton.DropDownContent>
+                    </hc:SplitButton>
+                    <Button IsEnabled="{Binding EnableFeature}" Command="{Binding AddItemCommand}" CommandParameter="{Binding SelectedGroup}" BorderBrush="Transparent" DockPanel.Dock="Right" Height="70" Width="70" ToolTip="New process">
+                        <StackPanel>
+                            <Image Source="/Icon/Add.png" Width="32" Height="32" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Add new" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button IsEnabled="{Binding EnableFeature}" Command="{Binding DeleteItemCommand}" CommandParameter="{Binding SelectedGroup}" Height="70" Width="70" BorderBrush="Transparent" ToolTip="Remove process">
+                        <StackPanel>
+                            <Image Source="/Icon/Delete.png" Width="32" Height="32" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Delete" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button IsEnabled="{Binding EnableFeature}" Command="{Binding DataContext.RenameCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{Binding SelectedGroup}"
+                            DockPanel.Dock="Right" Height="70" Width="70" BorderBrush="Transparent" ToolTip="Rename process">
+                        <StackPanel>
+                            <Image Source="/Icon/Edit.png" Width="32" Height="32" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Rename" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                <Setter Property="IsEnabled" Value="True"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedGroup.IsEditing}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+                <TextBlock Text="Edit" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,5,0,5"/>
+            <StackPanel HorizontalAlignment="Left" Margin="5" IsEnabled="{Binding EnableFeature}">
+                <StackPanel Orientation="Horizontal">
+                    <Button Command="{Binding CopyItemCommand}" CommandParameter="{Binding SelectedGroup}" DockPanel.Dock="Right" BorderBrush="Transparent" Height="70" Width="70" ToolTip="Copy process">
+                        <StackPanel>
+                            <Image Source="/Icon/Copy.png" Width="32" Height="32" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Copy" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding PasteItemCommand}" CommandParameter="{Binding SelectedGroup}" DockPanel.Dock="Right" BorderBrush="Transparent" Height="70" Width="70" ToolTip="Paste process">
+                        <StackPanel>
+                            <Image Source="/Icon/Paste.png" Width="32" Height="32" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Paste" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <TextBlock Text="Duplicate" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,5,0,5"/>
+            <StackPanel HorizontalAlignment="Left" Margin="5" IsEnabled="{Binding EnableFeature}">
+                <StackPanel Height="70">
+                    <Button ToolTip="Move up" Command="{Binding DataContext.UpStepCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{Binding SelectedGroup}" Height="30" Width="70" Padding="0,-5,0,-5" Margin="0,5,0,0"
+                            BorderBrush="Transparent" VerticalAlignment="Center">
+                        <StackPanel>
+                            <Image Source="/Icon/Up.png" Width="32" Height="32" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button ToolTip="Move down" Command="{Binding DataContext.DownStepCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            CommandParameter="{Binding SelectedGroup}" Height="30" Width="70" Padding="0,-5,0,0"
+                            BorderBrush="Transparent" VerticalAlignment="Center">
+                        <StackPanel>
+                            <Image Source="/Icon/Up.png" Width="32" Height="32" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Image.RenderTransform>
+                                    <RotateTransform Angle="180" CenterX="16" CenterY="16"/>
+                                </Image.RenderTransform>
+                            </Image>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <TextBlock Text="Move" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,5,0,5"/>
+            <StackPanel HorizontalAlignment="Left" Margin="5" >
+                <StackPanel Orientation="Horizontal">
+                    <Button Command="{Binding RunCommand}" CommandParameter="{Binding}" VerticalAlignment="Top"
+                            BorderBrush="Transparent" Height="70" Width="70">
+                        <StackPanel>
+                            <Image Source="/Icon/Start.png" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Start" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding StopCommand}" CommandParameter="{Binding}" VerticalAlignment="Top"
+                            BorderBrush="Transparent" Height="70" Width="70">
+                        <StackPanel>
+                            <Image Source="/Icon/Stop.png" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Stop" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <TextBlock Text="Automation" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,5,0,5"/>
+            <StackPanel HorizontalAlignment="Left" Margin="5">
+                <StackPanel Orientation="Horizontal">
+                    <Button Command="{Binding OpenLogCommand}"
+                            BorderBrush="Transparent" Height="70" Width="70" ToolTip="Open last run report (XML / HTML)">
+                        <StackPanel>
+                            <Image Source="/Icon/OpenFile.png" Width="32" Height="32" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Log" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <TextBlock Text="Report" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,5,0,5"/>
+        </DockPanel>
+    </Border>
+</UserControl>

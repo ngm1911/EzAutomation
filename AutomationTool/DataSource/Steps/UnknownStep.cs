@@ -1,4 +1,5 @@
-﻿using AutomationTool.Model;
+﻿using AutomationTool.Helper;
+using AutomationTool.Model;
 using FlaUI.Core.AutomationElements;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -22,19 +23,19 @@ namespace AutomationTool.DataSource.Steps
                     break;
 
                 case ActionTypes.DeleteFile:
-                    result = DeleteFile(_autoStep.Param0);
+                    result = DeleteFile(_autoStep.Param0, _autoStep.UseVariable);
                     break;
 
                 case ActionTypes.CopyFile:
-                    result = CopyFile(_autoStep.Param0, _autoStep.Param1);
+                    result = CopyFile(_autoStep.Param0, _autoStep.Param1, _autoStep.UseVariable);
                     break;
 
                 case ActionTypes.CompareFile:
-                    result = await CompareFile(_autoStep.Param0, _autoStep.Param1, _autoStep.Param2);
+                    result = await CompareFile(_autoStep.Param0, _autoStep.Param1, _autoStep.Param2, _autoStep.UseVariable);
                     break;
                     
                 case ActionTypes.ExistedFile:
-                    result = ExistedFile(_autoStep.Param0, _autoStep.Param1);
+                    result = ExistedFile(_autoStep.Param0, _autoStep.Param1, _autoStep.UseVariable);
                     break;
 
                 case ActionTypes.ChangeDateTime:
@@ -52,14 +53,22 @@ namespace AutomationTool.DataSource.Steps
                 case ActionTypes.WaitTime:
                     result = await WaitTime(_autoStep.Param0);
                     break;
+
+                case ActionTypes.Variable:
+                    result = true;
+                    break;
             }
             return result;
         }
 
-        private bool DeleteFile(string file)
+        private bool DeleteFile(string file, bool useVariable)
         {
             try
             {
+                if (useVariable)
+                {
+                    Constant.UpdateVariable(ref file);
+                }
                 if (File.Exists(file))
                 {
                     File.Delete(file);
@@ -72,10 +81,15 @@ namespace AutomationTool.DataSource.Steps
             }
         }
 
-        private bool ExistedFile(string file, string exited)
+        private bool ExistedFile(string file, string exited, bool useVariable)
         {
             try
             {
+                if (useVariable)
+                {
+                    Constant.UpdateVariable(ref file);
+                }
+
                 bool.TryParse(exited, out bool exitedBool);
                 return File.Exists(file) == exitedBool;
             }
@@ -85,10 +99,15 @@ namespace AutomationTool.DataSource.Steps
             }
         }
 
-        private bool CopyFile(string source, string target)
+        private bool CopyFile(string source, string target, bool useVariable)
         {
             try
             {
+                if (useVariable)
+                {
+                    Constant.UpdateVariable(ref source);
+                    Constant.UpdateVariable(ref target);
+                }
                 if (File.Exists(source))
                 {
                     File.Copy(source, target, true);
@@ -101,10 +120,16 @@ namespace AutomationTool.DataSource.Steps
             }
         }
 
-        private async Task<bool> CompareFile(string file1, string file2, string ignores)
+        private async Task<bool> CompareFile(string file1, string file2, string ignores, bool useVariable)
         {
             try
             {
+                if (useVariable)
+                {
+                    Constant.UpdateVariable(ref file1);
+                    Constant.UpdateVariable(ref file2);
+                }
+
                 int retry = 5;
                 do
                 {
@@ -116,7 +141,7 @@ namespace AutomationTool.DataSource.Steps
                 while (DateTime.Now.Subtract(File.GetLastWriteTime(file1)).TotalSeconds < 5
                     || DateTime.Now.Subtract(File.GetLastWriteTime(file2)).TotalSeconds < 5)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(5));
+                    await Task.Delay(TimeSpan.FromSeconds(7));
                 }
 
                 if (File.Exists(file1) && File.Exists(file2))
@@ -240,7 +265,8 @@ namespace AutomationTool.DataSource.Steps
 
         public List<ActionTypes> ActionType()
         {
-            return [ActionTypes.DeleteFile, 
+            return [ActionTypes.Variable, 
+                    ActionTypes.DeleteFile, 
                     ActionTypes.CompareFile, 
                     ActionTypes.ExistedFile, 
                     ActionTypes.CopyFile, 
